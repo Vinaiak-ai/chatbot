@@ -11,9 +11,7 @@ function isPlainLink(markdown) {
 
     if (token.type === 'paragraph' && token.tokens?.length === 1) {
         const inner = token.tokens[0];
-        if (inner.type === 'link' && inner.raw === inner.href) {
-            return true;
-        }
+        return inner.type === 'link' && !inner.raw.includes("]")
     }
     return false;
 }
