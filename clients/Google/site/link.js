@@ -4,10 +4,18 @@ let captchaScript = document.createElement('script')
 captchaScript.src = "https://www.google.com/recaptcha/enterprise.js?render=" + captchaKey
 captchaScript.id = 'captcha'
 document.body.appendChild(captchaScript)
-let varified = false
-let injectjs = document.createElement('script')
-injectjs.src = "/vinaiak/chatbot/frontend/inject.js"
-document.body.appendChild(injectjs)
+let AI, Bot
+let quickAccesses, mcq
+const server = "https://vinaiak.ddns.net"
+fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(response => {
+	response.text().then(data => {
+		let Bot1, AI1
+		data = data + ';Bot1 = Bot;AI1 = AI'
+		eval(data)
+		AI = AI1
+		Bot = Bot1
+	})
+})
 function addBot(targetElement) {
 	let frameNotOpened = false
 	targetElement = targetElement || document.body
@@ -16,17 +24,17 @@ function addBot(targetElement) {
 	{
 		const styles = document.createElement('link')
 		styles.rel = "stylesheet"
-		styles.href = "/vinaiak/clients/BIT_Mesra/site/styles.css"
+		styles.href = "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/styles.css"
 		document.head.appendChild(styles)
 	}
 	const loginIcon = document.createElement('div')
 	loginIcon.id = "bot-loginIcon"
 	loginIcon.innerHTML = '\
-            <video muted disablePictureInPicture preload="auto" id="popup"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/popup.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="looking" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/Looking_Around.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="jump" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/Jump.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="hover" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/onHover.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="click" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/onClick.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="popup"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/popup.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="looking" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/Looking_Around.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="jump" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/Jump.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="hover" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/onHover.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="click" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/onClick.mp4" type="video/mp4">AI assistants</video>\
 '
 	targetElement.appendChild(loginIcon)
 	let captchaScript = document.createElement('script')
@@ -37,7 +45,7 @@ function addBot(targetElement) {
 	let startWaiting = true
 	const video = loginIcon.querySelector('#popup')
 	video.onended = () => {
-		video.src = "https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/popup.mp4"
+		video.src = "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/popup.mp4"
 		video.play()
 		video.onended = () => { startWaiting = false }
 	}
@@ -100,7 +108,7 @@ function addBot(targetElement) {
 		}
 		let customCss = document.createElement('link')
 		customCss.rel = 'stylesheet'
-		customCss.href = "/vinaiak/clients/Google/site/custom.css"
+		customCss.href = "https://chatbot.vinaiak.com/clients/Google/site/custom.css"
 		new Bot(5,
 			"Ask me about google!",
 			"Google assistant",

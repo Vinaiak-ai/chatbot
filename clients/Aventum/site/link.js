@@ -1,8 +1,24 @@
 const captchaKey = "6Lffi5YqAAAAADnWze7vgQJf6VTa908gS0v5lLhu";
 
-let injectjs = document.createElement("script");
-injectjs.src = "/vinaiak/chatbot/frontend/inject.js";
-document.body.appendChild(injectjs);
+let AI, Bot;
+const server = "https://api.vinaiak.com";
+fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(
+  (response) => {
+    response.text().then((data) => {
+      let Bot1, AI1;
+      data = data + ";Bot1 = Bot;AI1 = AI;";
+      eval(data);
+      AI = AI1;
+      Bot = Bot1;
+    });
+  },
+);
+{
+  const mcq = document.createElement('script')
+  mcq.src = "https://chatbot.vinaiak.com/clients/Aventum/site/mcq.js"
+  document.body.appendChild(mcq)
+}
+
 let captchaScript = document.createElement("script");
 captchaScript.src =
   "https://www.google.com/recaptcha/enterprise.js?render=" + captchaKey;
@@ -15,18 +31,18 @@ function addBot(targetElement) {
   {
     const styles = document.createElement("link");
     styles.rel = "stylesheet";
-    styles.href = "/vinaiak/clients/BIT_Mesra/site/styles.css";
+    styles.href = "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/styles.css";
     document.head.appendChild(styles);
   }
   const loginIcon = document.createElement("div");
   loginIcon.id = "bot-loginIcon";
   loginIcon.innerHTML =
     '\
-            <video muted disablePictureInPicture preload="auto" id="popup"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/namaste.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="looking" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/Looking_Around.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="jump" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/Jump.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="hover" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/onHover.mp4" type="video/mp4">AI assistants</video>\
-            <video muted disablePictureInPicture preload="auto" id="click" style="display:none"><source src="https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/onClick.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="popup"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/namaste.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="looking" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/Looking_Around.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="jump" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/Jump.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="hover" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/onHover.mp4" type="video/mp4">AI assistants</video>\
+            <video muted disablePictureInPicture preload="auto" id="click" style="display:none"><source src="https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/onClick.mp4" type="video/mp4">AI assistants</video>\
 ';
   targetElement.appendChild(loginIcon);
   let captchaScript = document.createElement("script");
@@ -39,7 +55,7 @@ function addBot(targetElement) {
   loginIcon.querySelector("#popup").onended = () => {
     const video = loginIcon.querySelector("#popup");
     video.src =
-      "https://suryansh-dey.github.io/vinaiak/clients/BIT_Mesra/site/resources/popup.mp4";
+      "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/resources/popup.mp4";
     video.play();
     video.onended = () => {
       startWaiting = false;
@@ -169,8 +185,8 @@ function addBot(targetElement) {
       3,
       captchaKey,
       "Your question",
-      "Taashi AI",
-      "resources/logo.png",
+      "Explorify Trips",
+      "https://chatbot.vinaiak.com/clients/Aventum/site/resources/logo.png",
       null,
       (frame) => {
         Bot.hideFrame();
@@ -239,8 +255,9 @@ function addBot(targetElement) {
                     "What's you preffered mode of transport?",
                     "bot",
                     true,
-                    ()=>{
-                      Bot.createMcq(mcq)}
+                    () => {
+                      Bot.createMcq(mcq)
+                    }
                   );
                 });
               });

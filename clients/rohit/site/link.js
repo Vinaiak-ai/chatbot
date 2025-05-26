@@ -1,22 +1,14 @@
-const server = "https://api.vinaiak.com";
+const server = "https://coach.zenlearn.ai";
 const xhr = new XMLHttpRequest();
-xhr.open("GET", "https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js", false);
+xhr.open(
+    "GET",
+    "https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js",
+    false,
+);
 xhr.send();
 eval(xhr.responseText);
 const renderer = new marked.Renderer();
-function isPlainLink(markdown) {
-    const tokens = marked.lexer(markdown);
-    if (tokens.length !== 1) return false;
-    const token = tokens[0];
-
-    if (token.type === 'paragraph' && token.tokens?.length === 1) {
-        const inner = token.tokens[0];
-        return inner.type === 'link' && !inner.raw.includes("]")
-    }
-    return false;
-}
 renderer.link = (link) => {
-    link.href = link.href.replaceAll('\\_', '_')
     const extention = link.href.split(".").pop();
     if (extention === "png" || extention === "jpg" || extention === "jpeg")
         return `<img src="${link.href}" alt="${link.title || link.text}" title="${link.title || ""}" onclick="window.open(this.src, '_blank')">`;
@@ -24,12 +16,7 @@ renderer.link = (link) => {
         return `<video muted autoplay controls><source src="${link.href}" title="${link.title || ""}" type="video/mp4">\
             ${link.title || link.text}.\
         </video>`;
-
-    let innerText = link.text || link.title || "click here"
-    if (!isPlainLink(innerText)) { //preventing infinit recursion
-        innerText = marked.parse(innerText, { renderer })
-    }
-    return `<a href="${link.href}" title="${link.title || ""}" target="_blank">${innerText}</a>`;
+    return `<a href="${link.href}" title="${link.title || ""}" target="_blank">${marked.parse(link.text || link.title || "click here")}</a>`;
 };
 renderer.image = (link) => {
     return `<img src="${link.href}" alt="${link.title || link.text}" title="${link.title || ""}" onclick="window.open(this.src, '_blank')">`;
@@ -43,91 +30,51 @@ function arraysEqual(arr1, arr2) {
     return true;
 }
 class AI {
-    static replyNo;
-    static isTutor;
-    static requestPayload = { context: [] };
-    static last_token_update;
-    /**@type {import ('./../wasm/session.d.ts').SessionManager}*/
-    static session_manager;
-    static captchaKey;
+    static replyNo = 0;
+    static clientId;
+    static context = "";
+    static keepAliveXhr;
+    static keepAliveRequested = true;
+    static isTutor = false;
     constructor(organisationId, captchaKey) {
-        AI.requestPayload.org_id = organisationId;
-        AI.captchaKey = captchaKey
-        import("https://suryansh-dey.github.io/vinaiak/chatbot/wasm/session.js").then(async (module) => {
-            await module.default()
-            AI.to_parts = module.SessionManager.to_parts
-            AI.session_manager = new module.SessionManager()
-
-            let google_captcha_token = await grecaptcha.enterprise.execute(captchaKey, {
-                action: "LOGIN",
-            });
-            const response = await fetch("https://hsinitush23klocgisiucghphm0xqnae.lambda-url.ap-south-1.on.aws/", {
-                method: "POST",
-                body: JSON.stringify({
-                    org_id: String(organisationId),
-                    google_captcha_token,
-                }),
-            })
-            AI.last_token_update = Date.now()
-            AI.requestPayload.session_token = await response.text()
-        })
-        AI.replyNo = 0;
+        AI.keepAliveXhr = new XMLHttpRequest();
+        AI.keepAliveXhr.onload = null;
+        fetch(server + "/chat/new").then(res => res.json()).then(data => AI.clientId = data.data)
     }
     static setContext(context) {
-        AI.requestPayload.context = context;
+        if (AI.context != "" && !arraysEqual(AI.context, context)) {
+            xhr.open("POST", server + "/forget", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.onload = null;
+            xhr.send(JSON.stringify({ id: AI.clientId }));
+        }
+        AI.context = context;
     }
-    static async update_token() {
-        let google_captcha_token = await grecaptcha.enterprise.execute(AI.captchaKey, {
-            action: "LOGIN",
-        });
-        const response = await fetch("https://hsinitush23klocgisiucghphm0xqnae.lambda-url.ap-south-1.on.aws/", {
-            method: "POST",
-            body: JSON.stringify({
-                google_captcha_token,
-                session_token: AI.requestPayload.session_token
-            }),
-        })
-        AI.last_token_update = Date.now()
-        AI.requestPayload.session_token = await response.text()
-    }
-    static async answer(query, output_box) {
+    static answer(query) {
         if (AI.isTutor && typeof query !== "object")
             throw Error("When at tutor state, query should be an object");
         if (!AI.isTutor && typeof query !== "string")
             throw Error("When not at tutor state, query should be a string");
+        return new Promise((resolve, _reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", server + '/chat/' + AI.clientId, true);
+            xhr.onload = () => {
+                let output = JSON.parse(xhr.responseText).data
+                if (output.includes(']'))
+                    output = output.split(']')[1];
+                output = output.replaceAll('```', '\n');
 
-        if (Date.now() - this.last_token_update > 100 * 1000) await AI.update_token()
-
-        AI.requestPayload.prompt = query
-        AI.requestPayload.old_session = JSON.parse(AI.session_manager.get_session())
-        let response = await fetch("https://vusqerclrmitlqzzzpdqq6qnku0enlnu.lambda-url.ap-south-1.on.aws/", {
-            method: "POST",
-            body: JSON.stringify(AI.requestPayload)
-        })
-
-        const decoder = new TextDecoder();
-        let part_no = 1
-        for await (const chunk of response.body) {
-            const chunks = decoder.decode(chunk).split('\\;')
-            for (const parts of chunks) {
-                if (part_no == 1) {
-                    AI.requestPayload.session_token = parts
-                    part_no = 2
-                } else if (part_no == 2) {
-                    AI.session_manager.ask(parts)
-                    part_no = 3
-                } else if (parts) {
-                    AI.session_manager.add_reply(parts.replaceAll('\\]', ']'))
-                    let reply = AI.session_manager.get_last_reply().replaceAll(/\u00A0|`|tool_code/g, " ");
-
-                    output_box.innerHTML = marked.parse(reply, { renderer })
-                }
-            }
-        }
+                if (xhr.status == 200) resolve(output);
+                else resolve("An error occured! Try logging in again to the chatbot");
+            };
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(
+                JSON.stringify({ message: query }),
+            );
+        });
     }
     static remember(query, reply) {
-        AI.session_manager.ask(`[{"text":"${query}"}]`)
-        AI.session_manager.add_reply(`[{"text":"${reply}"}]`)
+
     }
     static keepAlive() {
         AI.keepAliveRequested = true;
@@ -141,50 +88,55 @@ class AI {
             xhr.onload = () => {
                 if (xhr.status === 200)
                     resolve(xhr.responseText)
-                else reject("An error occurred while fetching the data. Report to the administrator and try later!")
+                else resolve("An error occurred while fetching the data. Report to the administrator and try later!")
             }
         })
     }
     static quit() {
+        clearInterval(AI.keepAliveIntervalId);
     }
 }
 class Bot {
-    static landscapeWidth;
-    static portraitWidth;
-    static landscapeHeight;
-    static portraitHeight;
+    static landscapeWidth = 30;
+    static portraitWidth = 100;
+    static landscapeHeight = 98;
+    static portraitHeight = 98;
     static audios = {
         openFrame: new Audio(
-            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/Open.wav",
+            "https://chatbot.vinaiak.com/chatbot/frontend/resources/Open.wav",
         ),
         reply: new Audio(
-            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/Bot_Reply.wav",
+            "https://chatbot.vinaiak.com/chatbot/frontend/resources/Bot_Reply.wav",
         ),
         ask: new Audio(
-            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/User_Send.wav",
+            "https://chatbot.vinaiak.com/chatbot/frontend/resources/User_Send.wav",
         ),
         closeFrame: new Audio(
-            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/window_close.wav",
+            "https://chatbot.vinaiak.com/chatbot/frontend/resources/window_close.wav",
         ),
     };
-    static exists;
-    static loaded;
-    static replying;
+    static exists = false;
+    static loaded = false;
+    static replying = false;
     /** @type {HTMLIFrameElement} */
     static iframe;
-    static optionsCallBacks;
-    static queue;
+    static optionsCallBacks = {};
+    static queue = [];
     static makeTutor() {
         AI.isTutor = true;
-        AI.requestPayload.is_tutor = true
-        Bot.iframe.contentDocument.getElementById("text-input").style.paddingLeft = "5.5dvh";
-        Bot.iframe.contentDocument.getElementById("image-input-icon").style.display = "block";
+        Bot.iframe.contentDocument.getElementById("text-input").style.paddingLeft =
+            "5.5dvh";
+        Bot.iframe.contentDocument.getElementById(
+            "image-input-icon",
+        ).style.display = "block";
     }
     static unmakeTutor() {
         AI.isTutor = false;
-        AI.requestPayload.is_tutor = false
-        Bot.iframe.contentDocument.getElementById("text-input").style.paddingLeft = "2dvh";
-        Bot.iframe.contentDocument.getElementById("image-input-icon").style.display = "none";
+        Bot.iframe.contentDocument.getElementById("text-input").style.paddingLeft =
+            "2dvh";
+        Bot.iframe.contentDocument.getElementById(
+            "image-input-icon",
+        ).style.display = "none";
     }
     static hideFrame() {
         Bot.iframe.style.display = "none";
@@ -270,7 +222,7 @@ class Bot {
      * @param {'bot'|'user'} type
      * @param {boolean | undefined} format if true text is treated as markdown else as raw HTML
      * @param {(()=>void) | undefined} callBack 
-     * @returns {HTMLDivElement | null} output box
+     * @returns {HTMLDivElement | null} box
     */
     static createBox(text, type, format, callBack) {
         if (Bot.replying) {
@@ -298,7 +250,7 @@ class Bot {
         box.className = "box " + type;
         box.innerHTML =
             (type == "bot" && format == undefined) || format
-                ? marked.parse(text.replaceAll(/\u00A0/g, " "), { renderer })
+                ? marked.parse(text.replace(/\u00A0/g, " "), { renderer })
                 : text;
         for (const a of box.querySelectorAll("a")) a.target = "_blank";
         const chatArea = Bot.iframe.contentDocument.getElementById("chat-area");
@@ -372,27 +324,30 @@ class Bot {
         }
         return optionContainer;
     }
-    constructor(organisationId, captchaKey, placeholder, title, avtarPath, quickAccesses, onload, targetElement, openOnLoad) {
+    constructor(
+        organisationId,
+        captchaKey,
+        placeholder,
+        title,
+        avtarPath,
+        quickAccesses,
+        onload,
+        targetElement,
+        openOnLoad,
+    ) {
         if (Bot.exists)
-            throw new Error("Invalid call to Bot.constructor(). Instance of singleton-class Bot already exists");
-        Bot.landscapeWidth = 30;
-        Bot.portraitWidth = 100;
-        Bot.landscapeHeight = 98;
-        Bot.portraitHeight = 95;
-        Bot.exists = false;
-        Bot.loaded = false;
-        Bot.replying = false;
-        Bot.optionsCallBacks = {};
-        Bot.queue = [];
+            throw new Error(
+                "Invalid call to Bot.constructor(). Instance of singleton-class Bot already exists",
+            );
         new AI(organisationId, captchaKey);
-        window.addEventListener("beforeunload", AI.quit);
+        // window.addEventListener("beforeunload", AI.quit);
         Bot.avtarPath = avtarPath;
         let frameStyles = document.createElement("style");
         frameStyles.id = "frame-animation";
         document.head.appendChild(frameStyles);
         Bot.iframe = document.createElement("iframe");
         Bot.iframe.title = "chat bot frame";
-        fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.html")
+        fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.html")
             .then((response) => {
                 return response.text();
             })
@@ -415,7 +370,7 @@ class Bot {
         Bot.iframe.onload = () => {
             if (!Bot.exists) return;
             Bot.iframe.contentDocument.getElementById("background-img").src =
-                "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/doodle.svg";
+                "https://chatbot.vinaiak.com/chatbot/frontend/resources/doodle.svg";
             Bot.iframe.contentDocument.getElementById("text-input").placeholder =
                 placeholder;
             Bot.iframe.contentDocument.querySelector("#heading .title").innerHTML =
@@ -430,7 +385,7 @@ class Bot {
                     Bot.iframe.contentDocument.querySelector(
                         "#image-input-icon img",
                     ).src =
-                        "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                        "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
                     Bot.reply();
                 });
             Bot.iframe.contentDocument
@@ -444,7 +399,7 @@ class Bot {
                         Bot.iframe.contentDocument.querySelector(
                             "#image-input-icon img",
                         ).src =
-                            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                            "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
                     Bot.iframe.contentDocument.getElementById("text-input").focus();
                 });
 
@@ -456,7 +411,7 @@ class Bot {
                         Bot.iframe.contentDocument.querySelector(
                             "#image-input-icon img",
                         ).src =
-                            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                            "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
                         Bot.reply();
                     }
                 });
@@ -523,7 +478,7 @@ class Bot {
                     "user",
                 );
                 image = image
-                    ? await new Promise((resolve, _reject) => {
+                    ? await new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.onload = (event) => {
                             resolve(event.target.result);
@@ -539,14 +494,10 @@ class Bot {
             } else Bot.createBox(query, "user", false);
         }
         Bot.audios.ask.play();
-        if (text) {
-            Bot.createBox(text, "bot");
-            return
-        }
-        let output_box = Bot.createBox('', "bot");
         Bot.startWaiting();
-        await AI.answer(query, output_box);
+        let replyText = text || (await AI.answer(query));
         Bot.stopWaiting();
+        Bot.createBox(replyText, "bot");
     }
     static createMcq(options, id = "mcq") {
         Bot.iframe.contentDocument
@@ -608,34 +559,93 @@ border: 2dvw solid ${colors.userBox} !important;}
             Bot.iframe.contentDocument.head.appendChild(styles)
         }
     }
-    static activateLogout(callback) {
-        const logout = Bot.iframe.contentDocument.getElementById("logout")
-        logout.style.display = "block"
-        logout.onclick = () => {
-            const logoutWarning = Bot.iframe.contentDocument.getElementById("logout-warning")
-            logoutWarning.style.display = "flex"
-            logoutWarning.addEventListener('click', (event) => {
-                if (event.target.id === 'logout-confirm' || event.target.className === 'notice')
-                    return
-                logoutWarning.style.display = 'none'
-            })
-        }
-        Bot.iframe.contentDocument.getElementById("logout-confirm").onclick = () => {
-            Bot.closeFrame()
-            fetch(server + '/logout', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json;charset=UTF-8"
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    id: AI.clientId
-                })
-            })
-            setTimeout(() => {
-                Bot.destructor()
-                if (callback) callback()
-            }, 300)
-        }
+}
+const captchaKey = "6LfgWgAqAAAAAAUnB69cbKEuxMVJJxDzs9lSP65v";
+
+{
+    let captchaScript = document.createElement("script");
+    captchaScript.src =
+        "https://www.google.com/recaptcha/enterprise.js?render=" + captchaKey;
+    captchaScript.id = "captcha";
+    captchaScript.async = false;
+    document.body.appendChild(captchaScript);
+    let components = document.createElement("script");
+    components.async = false;
+    components.src =
+        "https://chatbot.vinaiak.com/chatbot/frontend/components.js";
+    document.body.appendChild(components);
+}
+
+let personalData_className = ''
+
+function addBot(targetElement) {
+    let frameNotOpened = false;
+    targetElement = targetElement || document.body;
+    const captchaKey = "6LfgWgAqAAAAAAUnB69cbKEuxMVJJxDzs9lSP65v";
+
+    {
+        const styles = document.createElement("link");
+        styles.rel = "stylesheet";
+        styles.href =
+            "https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/styles.css";
+        document.head.appendChild(styles);
     }
+    const loginIcon = document.createElement("div");
+    loginIcon.id = "bot-loginIcon";
+    loginIcon.innerHTML =
+        '<img src="https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/resources/icon.gif" alt="AI assistants"</img>';
+    targetElement.appendChild(loginIcon);
+    let captchaScript = document.createElement("script");
+    captchaScript.src =
+        "https://www.google.com/recaptcha/enterprise.js?render=" + captchaKey;
+    captchaScript.id = "captcha";
+    targetElement.appendChild(captchaScript);
+
+    loginIcon.onclick = () => {
+        if (Bot.exists) {
+            Bot.openFrame();
+            setTimeout(() => {
+                document.getElementById("bot-loginIcon").style.display = "none";
+            }, 400);
+            return;
+        } else {
+            setTimeout(() => {
+                document.getElementById("bot-loginIcon").style.display = "none";
+                if (!Bot.loaded) frameNotOpened = true;
+                else Bot.openFrame();
+            }, 500);
+        }
+
+        new Bot(
+            3,
+            captchaKey,
+            "Ask me about Zen learn ",
+            "Zen learn AI",
+            "https://chatbot.vinaiak.com/clients/rohit/site/resources/logo.png",
+            null,
+            (frame) => {
+                Bot.iframe.style.bottom = "5dvh";
+                frame.getElementById("close").addEventListener("click", () => {
+                    document.getElementById("bot-loginIcon").style.display = "block";
+                });
+                Bot.startWaiting();
+                setTimeout(() => {
+                    Bot.stopWaiting();
+                    Bot.reply(`${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]}! How may I help you today?`)
+                }, 2000)
+                frame
+                    .getElementById("chat-area")
+                    .addEventListener("scrollend", AI.keepAlive);
+                document.addEventListener("scrollend", AI.keepAlive);
+                Bot.customiseColor({ watermark: false, heading: 'blue', boxBoder: 'violet', userBox: 'violet', link: 'green' })
+                Bot.iframe.style.zIndex = 10000;
+                if (frameNotOpened) Bot.openFrame();
+            },
+            targetElement,
+            false,
+        );
+        Bot.landscapeHeight = 70;
+        Bot.resizeIframe()
+        console.log("Logged in to chat bot");
+    };
 }

@@ -114,16 +114,16 @@
       static portraitHeight = 98;
       static audios = {
         openFrame: new Audio(
-          "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/Open.wav",
+          "https://chatbot.vinaiak.com/chatbot/frontend/resources/Open.wav",
         ),
         reply: new Audio(
-          "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/Bot_Reply.wav",
+          "https://chatbot.vinaiak.com/chatbot/frontend/resources/Bot_Reply.wav",
         ),
         ask: new Audio(
-          "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/User_Send.wav",
+          "https://chatbot.vinaiak.com/chatbot/frontend/resources/User_Send.wav",
         ),
         closeFrame: new Audio(
-          "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/window_close.wav",
+          "https://chatbot.vinaiak.com/chatbot/frontend/resources/window_close.wav",
         ),
       };
       static exists = false;
@@ -358,7 +358,7 @@
         document.head.appendChild(frameStyles);
         Bot.iframe = document.createElement("iframe");
         Bot.iframe.title = "chat bot frame";
-        fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.html")
+        fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.html")
           .then((response) => {
             return response.text();
           })
@@ -381,7 +381,7 @@
         Bot.iframe.onload = () => {
           if (!Bot.exists) return;
           Bot.iframe.contentDocument.getElementById("background-img").src =
-            "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/doodle.svg";
+            "https://chatbot.vinaiak.com/chatbot/frontend/resources/doodle.svg";
           Bot.iframe.contentDocument.getElementById("text-input").placeholder =
             placeholder;
           Bot.iframe.contentDocument.querySelector("#heading .title").innerHTML =
@@ -396,7 +396,7 @@
               Bot.iframe.contentDocument.querySelector(
                 "#image-input-icon img",
               ).src =
-                "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
               Bot.reply();
             });
           Bot.iframe.contentDocument
@@ -410,7 +410,7 @@
                 Bot.iframe.contentDocument.querySelector(
                   "#image-input-icon img",
                 ).src =
-                  "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                  "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
               Bot.iframe.contentDocument.getElementById("text-input").focus();
             });
 
@@ -422,7 +422,7 @@
                 Bot.iframe.contentDocument.querySelector(
                   "#image-input-icon img",
                 ).src =
-                  "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/resources/image.svg";
+                  "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
                 Bot.reply();
               }
             });
@@ -583,7 +583,7 @@ border: 2dvw solid ${colors.userBox} !important;}
       let components = document.createElement("script");
       components.async = false;
       components.src =
-        "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/components.js";
+        "https://chatbot.vinaiak.com/chatbot/frontend/components.js";
       document.body.appendChild(components);
     }
 
@@ -596,7 +596,7 @@ border: 2dvw solid ${colors.userBox} !important;}
         const styles = document.createElement("link");
         styles.rel = "stylesheet";
         styles.href =
-          "https://suryansh-dey.github.io/vinaiak/clients/SBPS_Ranchi/site/styles.css";
+          "https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/styles.css";
         document.head.appendChild(styles);
       }
       let captchaScript = document.createElement("script");
@@ -621,7 +621,7 @@ border: 2dvw solid ${colors.userBox} !important;}
           captchaKey,
           "Ask me about Zen learn ",
           "Zen learn AI",
-          "https://suryansh-dey.github.io/vinaiak/clients/rohit/site/resources/logo.png",
+          "https://chatbot.vinaiak.com/clients/rohit/site/resources/logo.png",
           null,
           (frame) => {
             Bot.iframe.style.bottom = "5dvh";

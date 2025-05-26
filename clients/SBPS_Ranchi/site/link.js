@@ -2,7 +2,7 @@ const server = "https://api.vinaiak.com";
 const captchaKey = "6LfgWgAqAAAAAAUnB69cbKEuxMVJJxDzs9lSP65v";
 
 let AI, Bot;
-fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.js").then(
+fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(
   (response) => {
     response.text().then((data) => {
       let Bot1, AI1;
@@ -23,11 +23,11 @@ fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.js").then(
   let components = document.createElement("script");
   components.async = false;
   components.src =
-    "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/components.js";
+    "https://chatbot.vinaiak.com/chatbot/frontend/components.js";
   document.body.appendChild(components);
   let mcqsjs = document.createElement("script");
   mcqsjs.src =
-    "https://suryansh-dey.github.io/vinaiak/clients/SBPS_Ranchi/site/mcqs.js";
+    "https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/mcqs.js";
   document.body.appendChild(mcqsjs);
 }
 
@@ -42,13 +42,13 @@ function addBot(targetElement) {
     const styles = document.createElement("link");
     styles.rel = "stylesheet";
     styles.href =
-      "https://suryansh-dey.github.io/vinaiak/clients/SBPS_Ranchi/site/styles.css";
+      "https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/styles.css";
     document.head.appendChild(styles);
   }
   const loginIcon = document.createElement("div");
   loginIcon.id = "bot-loginIcon";
   loginIcon.innerHTML =
-    '<img src="https://suryansh-dey.github.io/vinaiak/clients/SBPS_Ranchi/site/resources/icon.gif" alt="AI assistants"</img>';
+    '<img src="https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/resources/icon.gif" alt="AI assistants"</img>';
   targetElement.appendChild(loginIcon);
   let captchaScript = document.createElement("script");
   captchaScript.src =

@@ -2,7 +2,7 @@ const server = "https://api.vinaiak.com";
 const captchaKey = "6LfgWgAqAAAAAAUnB69cbKEuxMVJJxDzs9lSP65v";
 
 let AI, Bot;
-fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.js").then(
+fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(
     (response) => {
         response.text().then((data) => {
             let Bot1, AI1;
@@ -23,11 +23,8 @@ fetch("https://suryansh-dey.github.io/vinaiak/chatbot/frontend/inject.js").then(
     let components = document.createElement("script");
     components.async = false;
     components.src =
-        "https://suryansh-dey.github.io/vinaiak/chatbot/frontend/components.js";
+        "https://chatbot.vinaiak.com/chatbot/frontend/components.js";
     document.body.appendChild(components);
-    let mcqsjs = document.createElement("script");
-    mcqsjs.src = "https://suryansh-dey.github.io/vinaiak/clients/ISM/site/mcqs.js";
-    document.body.appendChild(mcqsjs);
 }
 
 let personalData_className = ''
@@ -41,13 +38,13 @@ function addBot(targetElement) {
         const styles = document.createElement("link");
         styles.rel = "stylesheet";
         styles.href =
-            "https://suryansh-dey.github.io/vinaiak/clients/ISM/site/styles.css";
+            "https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/styles.css";
         document.head.appendChild(styles);
     }
     const loginIcon = document.createElement("div");
     loginIcon.id = "bot-loginIcon";
     loginIcon.innerHTML =
-        '<img src="https://suryansh-dey.github.io/vinaiak/clients/ISM/site/resources/icon.gif" alt="AI assistants"</img>';
+        '<img src="https://chatbot.vinaiak.com/clients/SBPS_Ranchi/site/resources/icon.gif" alt="AI assistants"</img>';
     targetElement.appendChild(loginIcon);
     let captchaScript = document.createElement("script");
     captchaScript.src =
@@ -69,14 +66,18 @@ function addBot(targetElement) {
                 else Bot.openFrame();
             }, 500);
         }
-        let customCss = getLoginFormCss();
+        let customCss = getLoginFormCss(
+            `
+  #heading {
+	  background-color: #fead61;
+	}`);
         new Bot(
             3,
             captchaKey,
-            "Ask me about IIT (ISM) Dhanbad",
-            "IIT(ISM) Assistant",
-            "https://suryansh-dey.github.io/vinaiak/clients/ISM/site/resources/logo.png",
-            quickAccesses,
+            "Ask me your doubt",
+            "Student Mentor",
+            "./resources/icon.gif",
+            null,
             (frame) => {
                 Bot.iframe.style.bottom = "5dvh";
                 frame.getElementById("quick-access").style.display = "none";
@@ -91,16 +92,16 @@ function addBot(targetElement) {
                     "Introduce yourself",
                     true,
                     (personalData) => {
-                        Bot.reply(`${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! Which program are you intrested in?`);
+                        Bot.reply(`${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! How may I help you today?`);
                         frame.getElementById("text-input").style.display = "block";
                         frame.getElementById("send").style.display = "block";
                         frame.getElementById("text-input").focus();
                         frame.getElementById("quick-access").style.display = "block";
-                        Bot.createMcq(mcq);
+                        // Bot.createMcq(mcq);
+                        Bot.makeTutor()
                     },
                     Bot.stopWaiting,
-                    false,
-                    () => {
+                    true, () => {
                         console.log("Logged out of chat bot")
                         document.getElementById("bot-loginIcon").style.display = "block";
                     }
@@ -116,9 +117,8 @@ function addBot(targetElement) {
             targetElement,
             false,
         );
-        Bot.landscapeHeight = 90;
+        Bot.landscapeHeight = 70;
         Bot.resizeIframe()
-        AI.setContext(["ISM Dhanbad"])
         console.log("Logged in to chat bot");
     };
 }
