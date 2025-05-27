@@ -240,10 +240,11 @@ class Bot {
         document.getElementById("frame-animation").textContent =
             Bot.generateFrameAnimation();
     }
+    static waitingBox;
     static createWaiting() {
         let waitingBox = document.createElement("div");
         waitingBox.className = "box bot waiting";
-        waitingBox.style.display = "none";
+        waitingBox.style.display = "flex";
         for (let i = 0; i < 3; i++) {
             let dot = document.createElement("div");
             dot.className = "dot";
@@ -253,12 +254,10 @@ class Bot {
         Bot.iframe.contentDocument
             .getElementById("chat-area")
             .appendChild(waitingBox);
+        Bot.waitingBox = waitingBox
     }
     static startWaiting() {
-        let waiting = Bot.iframe.contentDocument.querySelector(".box.bot.waiting");
-        waiting.parentNode.removeChild(waiting);
-        waiting.style.display = "flex";
-        Bot.iframe.contentDocument.getElementById("chat-area").appendChild(waiting);
+        Bot.iframe.contentDocument.getElementById("chat-area").appendChild(Bot.waitingBox);
         Bot.iframe.contentDocument.getElementById("chat-area").scrollTo({
             top: Bot.iframe.contentDocument.getElementById("chat-area").scrollHeight,
             behavior: "smooth",
@@ -266,8 +265,7 @@ class Bot {
         Bot.replying = true;
     }
     static stopWaiting() {
-        Bot.iframe.contentDocument.querySelector(".box.bot.waiting").style.display =
-            "none";
+        Bot.waitingBox.parentNode.removeChild(Bot.waitingBox);
         Bot.replying = false;
     }
     static createAvtar() {
@@ -429,10 +427,8 @@ class Bot {
             if (!Bot.exists) return;
             Bot.iframe.contentDocument.getElementById("background-img").src =
                 "https://chatbot.vinaiak.com/chatbot/frontend/resources/doodle.svg";
-            Bot.iframe.contentDocument.getElementById("text-input").placeholder =
-                placeholder;
-            Bot.iframe.contentDocument.querySelector("#heading .title").innerHTML =
-                title;
+            Bot.iframe.contentDocument.getElementById("text-input").placeholder = placeholder;
+            Bot.iframe.contentDocument.querySelector("#heading .title").innerHTML = title;
             Bot.iframe.contentDocument
                 .getElementById("close")
                 .addEventListener("click", Bot.closeFrame);
