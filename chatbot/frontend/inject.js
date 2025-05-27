@@ -4,6 +4,19 @@ xhr.open("GET", "https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js", fals
 xhr.send();
 eval(xhr.responseText);
 const renderer = new marked.Renderer();
+function splitByBrackets(text) {
+    let count = 0;
+    let array = ['']
+    for (const char of text) {
+        if (char === '[' && count === 0)
+            array.push('[')
+        else array[array.length - 1] += char
+
+        if (char === '[') count++
+        else if (char === ']') count--;
+    }
+    return array
+}
 function isPlainLink(markdown) {
     const tokens = marked.lexer(markdown);
     if (tokens.length !== 1) return false;
@@ -108,7 +121,7 @@ class AI {
         const decoder = new TextDecoder();
         let part_no = 1
         for await (const chunk of response.body) {
-            const chunks = decoder.decode(chunk).split('\\;')
+            const chunks = splitByBrackets(decoder.decode(chunk))
             for (const parts of chunks) {
                 if (part_no == 1) {
                     AI.requestPayload.session_token = parts
