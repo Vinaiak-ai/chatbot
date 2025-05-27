@@ -4,18 +4,17 @@ xhr.open("GET", "https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js", fals
 xhr.send();
 eval(xhr.responseText);
 const renderer = new marked.Renderer();
-function splitByBrackets(text) {
-    let count = 0;
-    let array = ['']
+function splitByBrackets(text, count = 0, array = ['']) {
     for (const char of text) {
         if (char === '[' && count === 0)
             array.push('[')
         else array[array.length - 1] += char
 
-        if (char === '[') count++
+        if (char === '[') count++;
         else if (char === ']') count--;
     }
-    return array
+    console.log(text, count)
+    return [count, array]
 }
 function isPlainLink(markdown) {
     const tokens = marked.lexer(markdown);
@@ -120,9 +119,19 @@ class AI {
 
         const decoder = new TextDecoder();
         let part_no = 1
+        let last_count = 0
+        let last_split = ['']
         for await (const chunk of response.body) {
-            const chunks = splitByBrackets(decoder.decode(chunk))
-            for (const parts of chunks) {
+            const text = decoder.decode(chunk)
+            let [count, complete_chunk] = splitByBrackets(text, last_count, last_split);
+            if (count) {
+                last_count = count
+                continue
+            }
+            last_split = ['']
+            last_count = 0
+
+            for (const parts of complete_chunk) {
                 if (part_no == 1) {
                     AI.requestPayload.session_token = parts
                     part_no = 2
