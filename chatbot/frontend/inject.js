@@ -16,33 +16,6 @@ function splitByBrackets(text, count = 0, array = ['']) {
     console.log(text, count)
     return [count, array]
 }
-function isPlainLink(markdown) {
-    const tokens = marked.lexer(markdown);
-    if (tokens.length !== 1) return false;
-    const token = tokens[0];
-
-    if (token.type === 'paragraph' && token.tokens?.length === 1) {
-        const inner = token.tokens[0];
-        return inner.type === 'link' && !inner.raw.includes("]")
-    }
-    return false;
-}
-renderer.link = (link) => {
-    link.href = link.href.replaceAll('\\_', '_')
-    const extention = link.href.split(".").pop();
-    if (extention === "png" || extention === "jpg" || extention === "jpeg")
-        return `<img src="${link.href}" alt="${link.title || link.text}" title="${link.title || ""}" onclick="window.open(this.src, '_blank')">`;
-    if (extention === "mp4")
-        return `<video muted autoplay controls><source src="${link.href}" title="${link.title || ""}" type="video/mp4">\
-            ${link.title || link.text}.\
-        </video>`;
-
-    let innerText = link.text || link.title || "click here"
-    if (!isPlainLink(innerText)) { //preventing infinit recursion
-        innerText = marked.parse(innerText, { renderer })
-    }
-    return `<a href="${link.href}" title="${link.title || ""}" target="_blank">${innerText}</a>`;
-};
 renderer.image = (link) => {
     return `<img src="${link.href}" alt="${link.title || link.text}" title="${link.title || ""}" onclick="window.open(this.src, '_blank')">`;
 };
