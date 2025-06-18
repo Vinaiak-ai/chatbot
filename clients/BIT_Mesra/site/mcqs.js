@@ -2,6 +2,7 @@ function initChatting() {
     Bot.iframe.contentDocument.getElementById('text-input').style.display = 'block'
     Bot.iframe.contentDocument.getElementById('send').style.display = 'block'
     Bot.iframe.contentDocument.getElementById('text-input').focus()
+    Bot.iframe.contentDocument.getElementById("quick-access").style.display = "block"
     Bot.reply('How may I assist you?')
 }
 function remember() {
@@ -10,21 +11,21 @@ function remember() {
 }
 
 export const quickAccesses = {
-    "programs": {
+    "query": {
         'callBack': () => {
             Bot.updateQuickAccess({
                 "General query": {
-                    'callback': () => {
-                        bot.createbox("General query", 'user')
-                        bot.resetquickaccess()
-                        AI.setcontext([])
+                    'callBack': () => {
+                        Bot.createBox("General query", 'user')
+                        Bot.resetQuickAccess()
+                        AI.setContext([])
                     }
                 },
                 "Admissions": {
-                    'callback': () => {
-                        bot.createbox("Admissions", 'user')
-                        bot.resetquickaccess()
-                        AI.setcontext(["Admissions"])
+                    'callBack': () => {
+                        Bot.createBox("Admissions", 'user')
+                        Bot.resetQuickAccess()
+                        AI.setContext(["Admissions"])
                     }
                 },
             })
@@ -41,11 +42,11 @@ export const mcq = {
         }
     },
     "Admissions": {
-        'callback': () => {
-            bot.createbox("Admissions", 'user')
+        'callBack': () => {
+            Bot.createBox("Admissions", 'user')
             initChatting()
             Bot.removeMcq()
-            AI.setcontext(["Admissions"])
+            AI.setContext(["Admissions"])
         }
     },
 }
