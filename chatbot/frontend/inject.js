@@ -370,7 +370,9 @@ class Bot {
         Bot.replying = false;
         Bot.optionsCallBacks = {};
         Bot.queue = [];
-        new AI(organisationId, captchaKey);
+        if (captchaKey) new AI(organisationId, captchaKey);
+        else console.log("captchaKey not provided. Didn't log in to vinaiak backend")
+
         window.addEventListener("beforeunload", AI.quit);
         Bot.avtarPath = avtarPath;
         let frameStyles = document.createElement("style");
