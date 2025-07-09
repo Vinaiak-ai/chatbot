@@ -470,11 +470,12 @@ class Bot {
         Bot.exists = false;
     }
     //public
-    static openFrame() {
+    static openFrame(cb) {
         Bot.iframe.style.animation = "fadeIn 0.5s ease-out";
         Bot.iframe.style.display = "block";
         Bot.iframe.contentDocument.getElementById("text-input").focus();
         Bot.audios.openFrame.play();
+        if (cb) setTimeout(cb, 500)
     }
     static updateQuickAccess(options) {
         Bot.iframe.contentDocument
