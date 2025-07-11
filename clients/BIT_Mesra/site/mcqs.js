@@ -5,10 +5,6 @@ function initChatting() {
     Bot.iframe.contentDocument.getElementById("quick-access").style.display = "block"
     Bot.reply('How may I assist you?')
 }
-function remember() {
-    let children = Bot.iframe.contentDocument.getElementById('chat-area').children
-    AI.remember(children[children.length - 3].innerHTML, children[children.length - 1].innerHTML)
-}
 
 export const quickAccesses = {
     "query": {
@@ -21,11 +17,11 @@ export const quickAccesses = {
                         AI.setContext([])
                     }
                 },
-                "Admissions": {
+                "Admission": {
                     'callBack': () => {
-                        Bot.createBox("Admissions", 'user')
+                        Bot.createBox("Admission", 'user')
                         Bot.resetQuickAccess()
-                        AI.setContext(["Admissions"])
+                        AI.setContext(["Admission"])
                     }
                 },
             })
@@ -41,12 +37,12 @@ export const mcq = {
             Bot.removeMcq()
         }
     },
-    "Admissions": {
+    "Admission": {
         'callBack': () => {
-            Bot.createBox("Admissions", 'user')
+            Bot.createBox("Admission", 'user')
             initChatting()
             Bot.removeMcq()
-            AI.setContext(["Admissions"])
+            AI.setContext(["Admission"])
         }
     },
 }

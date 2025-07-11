@@ -490,9 +490,7 @@ class Bot {
     }
     static async reply(text) {
         if (Bot.replying) {
-            console.error(
-                "Bot.reply() failed. one Bot.reply() call is already processing",
-            );
+            console.error("Bot.reply() failed. one Bot.reply() call is already processing");
             return;
         }
         let query;
