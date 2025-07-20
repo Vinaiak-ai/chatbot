@@ -282,10 +282,10 @@ class Bot {
         }
         let box = document.createElement("div");
         box.className = "box " + type;
-        box.innerHTML =
-            (type == "bot" && format == undefined) || format
-                ? marked.parse(text.replaceAll(/\u00A0/g, " "), { renderer })
-                : text;
+        if ((type === "bot" && format === undefined) || format)
+            box.innerHTML = marked.parse(text.replaceAll(/\u00A0/g, " "), { renderer })
+        else
+            box.textContent = text;
         for (const a of box.querySelectorAll("a")) a.target = "_blank";
         const chatArea = Bot.iframe.contentDocument.getElementById("chat-area");
         chatArea.appendChild(box);
