@@ -37,7 +37,7 @@ class AI {
     /**@type {import ('./../wasm/session.d.ts').SessionManager}*/
     static session_manager;
     static captchaKey;
-    constructor(organisationId, captchaKey) {
+    constructor(organisationId, captchaKey, cb) {
         AI.requestPayload.org_id = organisationId;
         AI.captchaKey = captchaKey
         import("https://chatbot.vinaiak.com/chatbot/wasm/session.js").then(async (module) => {
@@ -57,6 +57,8 @@ class AI {
             })
             AI.last_token_update = Date.now()
             AI.requestPayload.session_token = await response.text()
+            if (cb) cb()
+            console.log("Logged in to chat bot");
         })
         AI.replyNo = 0;
     }
@@ -367,10 +369,10 @@ class Bot {
         Bot.portraitHeight = 95;
         Bot.exists = false;
         Bot.loaded = false;
-        Bot.replying = false;
+        Bot.replying = true;
         Bot.optionsCallBacks = {};
         Bot.queue = [];
-        if (captchaKey) new AI(organisationId, captchaKey);
+        if (captchaKey) new AI(organisationId, captchaKey, () => Bot.replying = false);
         else console.log("captchaKey not provided. Didn't log in to vinaiak backend")
 
         window.addEventListener("beforeunload", AI.quit);

@@ -119,6 +119,5 @@ function addBot(targetElement) {
         Bot.landscapeHeight = 90;
         Bot.resizeIframe()
         AI.setContext(["ISM Dhanbad"])
-        console.log("Logged in to chat bot");
     };
 }

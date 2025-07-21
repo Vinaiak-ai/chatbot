@@ -110,6 +110,5 @@ function addBot(targetElement) {
             },
             targetElement,
         );
-        console.log("Logged in to chat bot");
     };
 }
