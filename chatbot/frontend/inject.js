@@ -106,6 +106,7 @@ class AI {
                     AI.requestPayload.session_token = parts
                     part_no = 2
                 } else if (part_no == 2) {
+                    Bot.audios.reply.play();
                     AI.session_manager.ask(parts)
                     part_no = 3
                 } else if (parts) {
@@ -282,7 +283,6 @@ class Bot {
                     chats[chats.length - 2].className == "box user"))
         ) {
             Bot.createAvtar();
-            Bot.audios.reply.play();
         }
         let box = document.createElement("div");
         box.className = "box " + type;
