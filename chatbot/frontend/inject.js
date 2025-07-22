@@ -37,7 +37,8 @@ class AI {
     /**@type {import ('./../wasm/session.d.ts').SessionManager}*/
     static session_manager;
     static captchaKey;
-    constructor(organisationId, captchaKey, cb) {
+    static ready = false;
+    constructor(organisationId, captchaKey) {
         AI.requestPayload.org_id = organisationId;
         AI.captchaKey = captchaKey
         import("https://chatbot.vinaiak.com/chatbot/wasm/session.js").then(async (module) => {
@@ -57,7 +58,7 @@ class AI {
             })
             AI.last_token_update = Date.now()
             AI.requestPayload.session_token = await response.text()
-            if (cb) cb()
+            AI.ready = true;
             console.log("Logged in to chat bot");
         })
         AI.replyNo = 0;
@@ -80,6 +81,7 @@ class AI {
         AI.requestPayload.session_token = await response.text()
     }
     static async answer(query, output_box) {
+        if (!AI.ready) throw Error("AI constructor has not completed yet")
         if (AI.isTutor && typeof query !== "object")
             throw Error("When at tutor state, query should be an object");
         if (!AI.isTutor && typeof query !== "string")
@@ -369,10 +371,10 @@ class Bot {
         Bot.portraitHeight = 95;
         Bot.exists = false;
         Bot.loaded = false;
-        Bot.replying = true;
+        Bot.replying = false;
         Bot.optionsCallBacks = {};
         Bot.queue = [];
-        if (captchaKey) new AI(organisationId, captchaKey, () => Bot.replying = false);
+        if (captchaKey) new AI(organisationId, captchaKey);
         else console.log("captchaKey not provided. Didn't log in to vinaiak backend")
 
         window.addEventListener("beforeunload", AI.quit);
@@ -497,6 +499,10 @@ class Bot {
         }
         let query;
         if (!text) {
+            if (!AI.ready) {
+                console.error("AI constructor is still not complete")
+                return
+            }
             query = Bot.iframe.contentDocument.getElementById("text-input").value;
             if (!query) {
                 return;
