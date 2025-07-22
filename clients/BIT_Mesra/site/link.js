@@ -1,5 +1,5 @@
 let AI, Bot;
-let quickAccesses, mcq;
+// let quickAccesses, mcq;
 const server = "https://api.vinaiak.com";
 fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(
     (response) => {
@@ -12,12 +12,12 @@ fetch("https://chatbot.vinaiak.com/chatbot/frontend/inject.js").then(
         });
     },
 );
-import(
-    "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/mcqs.js"
-).then((module) => {
-    quickAccesses = module.quickAccesses;
-    mcq = module.mcq;
-});
+// import(
+//     "https://chatbot.vinaiak.com/clients/BIT_Mesra/site/mcqs.js"
+// ).then((module) => {
+//     quickAccesses = module.quickAccesses;
+//     mcq = module.mcq;
+// });
 function addBot(targetElement) {
     let frameNotOpened = false;
     targetElement = targetElement || document.body;
@@ -72,12 +72,12 @@ function addBot(targetElement) {
             "Ask me about BIT Mesra",
             "BIT Admission Assistant",
             "https://yt3.ggpht.com/a/AATXAJwOzthsWc__jFGypZvbWTdrVKBNCsMIv-Y6ofuk=s900-c-k-c0xffffffff-no-rj-mo",
-            quickAccesses,
+            null,
             (frame) => {
                 Bot.hideFrame();
-                frame.getElementById("quick-access").style.display = "none";
-                frame.getElementById("text-input").style.display = "none";
-                frame.getElementById("send").style.display = "none";
+                // frame.getElementById("quick-access").style.display = "none";
+                // frame.getElementById("text-input").style.display = "none";
+                // frame.getElementById("send").style.display = "none";
                 frame.getElementById("close").addEventListener("click", () => {
                     document.getElementById("bot-loginIcon").style.display = "block";
                 });
@@ -88,9 +88,9 @@ function addBot(targetElement) {
                     true,
                     (personalData) => {
                         Bot.reply(
-                            `${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! What are you intrested in?`,
+                            `${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! How may I assist you?`,
                         );
-                        Bot.createMcq(mcq);
+                        // Bot.createMcq(mcq);
                     },
                     () => {
                         Bot.stopWaiting();
