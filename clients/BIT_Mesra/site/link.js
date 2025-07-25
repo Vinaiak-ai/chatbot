@@ -88,7 +88,7 @@ function addBot(targetElement) {
                     true,
                     (personalData) => {
                         Bot.reply(
-                            `${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! How may I assist you?`,
+                            `${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! How may I assist you with admission?`,
                         );
                         // Bot.createMcq(mcq);
                     },

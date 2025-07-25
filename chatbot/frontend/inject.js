@@ -77,6 +77,9 @@ class AI {
                 session_token: AI.requestPayload.session_token
             }),
         })
+        if (response.status != 200) {
+            Bot.reply("We think you are not a good human, are you? Prove us wrong by mailing your phone number to vinaiak.ai@gmail.com. We need you help good human!")
+        }
         AI.last_token_update = Date.now()
         AI.requestPayload.session_token = await response.text()
     }
