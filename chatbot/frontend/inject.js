@@ -1,4 +1,3 @@
-const server = "https://api.vinaiak.com";
 const xhr = new XMLHttpRequest();
 xhr.open("GET", "https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js", false);
 xhr.send();
@@ -15,7 +14,8 @@ renderer.link = (link) => {
         </video>`;
 
     let innerText = link.text || link.title || "click here"
-    innerText = marked.parse(innerText)
+    if (!innerText.trim().startsWith('https://'))
+        innerText = marked.parse(innerText)
     return `<a href="${link.href}" title="${link.title || ""}" target="_blank">${innerText}</a>`;
 };
 renderer.image = (link) => {
