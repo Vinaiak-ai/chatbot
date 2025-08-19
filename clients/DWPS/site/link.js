@@ -93,10 +93,52 @@ function addBot(targetElement) {
                 if (frameNotOpened) Bot.openFrame();
 
                 Bot.stopWaiting()
+                Bot.makeTutor()
                 let ct = 0
+                Bot.createBox("Welcome back champ! how may I help you?", 'bot')
                 frame.getElementById("send").addEventListener('click', (event) => {
                     event.preventDefault()
-                    Bot.createBox("water", 'bot')
+                    const query = Bot.iframe.contentDocument.getElementById("text-input").value;
+                    let image =
+                        Bot.iframe.contentDocument.getElementById("image-input")
+                    Bot.createBox(
+                        (image.files[0] ? `<img src=${URL.createObjectURL(image.files[0])}><br>` : "") + query,
+                        "user", true
+                    );
+                    image.value = ''
+                    frame.getElementById("text-input").value = ''
+                    Bot.iframe.contentDocument.querySelector("#image-input-icon img").src =
+                        "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
+
+                    switch (ct) {
+                        case 0:
+                            Bot.startWaiting()
+                            setTimeout(() => {
+                                Bot.stopWaiting()
+                                Bot.createBox(`As we learned
+Superposition of Electric field -
+The resultant electric field at any point is equal to the vector sum of all the electric fields.
+![figure](https://cdn.entrance360.com/media/uploads/2018/06/09/3280-11.PNG)
+Let k = 1/4π€°  
+
+The electric field intensity (**E**) at **O** due to **A** is $|**E1**| = k(q/r^2)$ [directed towards midpoint of **BC**]----(1)  
+
+And electric field intensity (**E**) at **O** due to **B** is $|**E2**| = k(q/r^2)$ [directed towards midpoint of **AC**]----(2)  
+
+The electric field intensity (**E**) at **O** due to **C** is $|**E3**| = k(q/r^2)$ [directed towards midpoint of **AB**]----(3)  
+
+From (1),(2),(3) we get the **net electric intensity** at **O** due to **A,B,C** combined is given by ,  
+
+**E** = **E1** + **E2** + **E3**  
+
+Note that electric field intensity **E1,E2,E3** are **vector quantities** and they **form a triad with angle between them = $120^\circ$**, and since **they are equal in magnitude they cancel out each other**  
+
+Thus ,**net electric intensity**  
+
+**E** = **0**`, 'bot')
+                            }, 5000)
+                            break
+                    }
                     ct++
                 })
             },
@@ -104,7 +146,9 @@ function addBot(targetElement) {
             false,
         );
         Bot.landscapeHeight = 70;
+        Bot.landscapeWidth = 40;
         Bot.resizeIframe()
         console.log("Logged in to chat bot");
     };
 }
+//ABC is an equilateral triangle. Charges +q are placed at each corner. The electric intensity at O will be

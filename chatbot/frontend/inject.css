@@ -22,6 +22,7 @@ p {
     left: 0;
     height: 100dvh;
     width: auto;
+    object-fit: cover;
     overflow: hidden;
     opacity: 50%;
 }

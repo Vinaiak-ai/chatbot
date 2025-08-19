@@ -378,7 +378,7 @@ class Bot {
         Bot.optionsCallBacks = {};
         Bot.queue = [];
         if (captchaKey) new AI(organisationId, captchaKey);
-        else console.log("captchaKey not provided. Didn't log in to vinaiak backend")
+        else console.log("captchaKey not provided. Didn't login to vinaiak backend")
 
         window.addEventListener("beforeunload", AI.quit);
         Bot.avtarPath = avtarPath;
@@ -421,9 +421,7 @@ class Bot {
                     .getElementById("send")
                     .addEventListener("click", (event) => {
                         event.preventDefault();
-                        Bot.iframe.contentDocument.querySelector(
-                            "#image-input-icon img",
-                        ).src =
+                        Bot.iframe.contentDocument.querySelector("#image-input-icon img").src =
                             "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
                         Bot.reply();
                     });
