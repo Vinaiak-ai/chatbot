@@ -73,39 +73,17 @@ function addBot(targetElement) {
 	}`);
         new Bot(
             3,
-            captchaKey,
+            null,
             "Ask me your doubt",
             "Student Mentor",
             "./resources/icon.gif",
             null,
             (frame) => {
                 Bot.iframe.style.bottom = "5dvh";
-                frame.getElementById("quick-access").style.display = "none";
-                frame.getElementById("text-input").style.display = "none";
-                frame.getElementById("send").style.display = "none";
                 frame.getElementById("close").addEventListener("click", () => {
                     document.getElementById("bot-loginIcon").style.display = "block";
                 });
                 Bot.startWaiting();
-                createLoginForm(
-                    captchaKey,
-                    "Introduce yourself",
-                    true,
-                    (personalData) => {
-                        Bot.reply(`${["Hi", "Hello", "Welcome"][parseInt(Math.random() * 3)]} ${personalData ? personalData.name : ""}! How may I help you today?`);
-                        frame.getElementById("text-input").style.display = "block";
-                        frame.getElementById("send").style.display = "block";
-                        frame.getElementById("text-input").focus();
-                        frame.getElementById("quick-access").style.display = "block";
-                        // Bot.createMcq(mcq);
-                        Bot.makeTutor()
-                    },
-                    Bot.stopWaiting,
-                    true, () => {
-                        console.log("Logged out of chat bot")
-                        document.getElementById("bot-loginIcon").style.display = "block";
-                    }
-                );
                 Bot.customiseCss(customCss);
                 frame
                     .getElementById("chat-area")
@@ -113,6 +91,14 @@ function addBot(targetElement) {
                 document.addEventListener("scrollend", AI.keepAlive);
                 Bot.iframe.style.zIndex = 10000;
                 if (frameNotOpened) Bot.openFrame();
+
+                Bot.stopWaiting()
+                let ct = 0
+                frame.getElementById("send").addEventListener('click', (event) => {
+                    event.preventDefault()
+                    Bot.createBox("water", 'bot')
+                    ct++
+                })
             },
             targetElement,
             false,

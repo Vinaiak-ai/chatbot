@@ -416,16 +416,17 @@ class Bot {
             Bot.iframe.contentDocument
                 .getElementById("close")
                 .addEventListener("click", Bot.closeFrame);
-            Bot.iframe.contentDocument
-                .getElementById("send")
-                .addEventListener("click", (event) => {
-                    event.preventDefault();
-                    Bot.iframe.contentDocument.querySelector(
-                        "#image-input-icon img",
-                    ).src =
-                        "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
-                    Bot.reply();
-                });
+            if (captchaKey)
+                Bot.iframe.contentDocument
+                    .getElementById("send")
+                    .addEventListener("click", (event) => {
+                        event.preventDefault();
+                        Bot.iframe.contentDocument.querySelector(
+                            "#image-input-icon img",
+                        ).src =
+                            "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
+                        Bot.reply();
+                    });
             Bot.iframe.contentDocument
                 .getElementById("image-input")
                 .addEventListener("input", (event) => {
@@ -446,11 +447,8 @@ class Bot {
                 .addEventListener("keydown", (event) => {
                     if (event.key == "Enter" && !event.shiftKey) {
                         event.preventDefault();
-                        Bot.iframe.contentDocument.querySelector(
-                            "#image-input-icon img",
-                        ).src =
-                            "https://chatbot.vinaiak.com/chatbot/frontend/resources/image.svg";
-                        Bot.reply();
+                        Bot.iframe.contentDocument
+                            .getElementById("send").dispatchEvent(new Event('click'))
                     }
                 });
             Bot.iframe.contentDocument.querySelector("#heading .avtar").src =
