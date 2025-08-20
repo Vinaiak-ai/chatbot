@@ -106,7 +106,7 @@ class AI {
             recieved += decoder.decode(chunk)
             const complete_chunk = recieved.split('\\;')
             if (complete_chunk.length <= 1) continue;
-            recieved = ''
+            recieved = complete_chunk.pop()
 
             for (const parts of complete_chunk) {
                 if (part_no == 1) {
@@ -116,7 +116,7 @@ class AI {
                     Bot.audios.reply.play();
                     AI.session_manager.ask(parts)
                     part_no = 3
-                } else if (parts) {
+                } else {
                     AI.session_manager.add_reply(parts.replaceAll('\\]', ']'))
                     let reply = AI.session_manager.get_last_reply().replaceAll(/\u00A0|`|tool_code/g, " ");
 
@@ -124,6 +124,7 @@ class AI {
                 }
             }
         }
+        if (recieved) console.error("Filed to recieve complete stream. Incomplete stream:", recieved)
     }
     static remember(query, reply) {
         AI.session_manager.ask(`[{"text":"${query}"}]`)
