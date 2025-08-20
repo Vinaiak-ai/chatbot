@@ -101,8 +101,12 @@ class AI {
 
         const decoder = new TextDecoder();
         let part_no = 1
+        let recieved = ''
         for await (const chunk of response.body) {
-            const complete_chunk = decoder.decode(chunk).split('\\;')
+            recieved += decoder.decode(chunk)
+            const complete_chunk = recieved.split('\\;')
+            if (complete_chunk.length <= 1) continue;
+            recieved = ''
 
             for (const parts of complete_chunk) {
                 if (part_no == 1) {
