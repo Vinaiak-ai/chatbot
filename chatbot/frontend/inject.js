@@ -103,8 +103,8 @@ class AI {
         let part_no = 1
         let recieved = ''
         for await (const chunk of response.body) {
-            recieved += decoder.decode(chunk)
-            const complete_chunk = recieved.split('\\;')
+            recieved += decoder.decode(chunk, { stream: true })
+            const complete_chunk = recieved.split('\n')
             if (complete_chunk.length <= 1) continue;
             recieved = complete_chunk.pop()
 
@@ -117,8 +117,8 @@ class AI {
                     AI.session_manager.ask(parts)
                     part_no = 3
                 } else {
-                    AI.session_manager.add_reply(parts.replaceAll('\\]', ']'))
-                    let reply = AI.session_manager.get_last_reply().replaceAll(/\u00A0|`|tool_code/g, " ");
+                    AI.session_manager.add_reply(parts.repace(/```|```markdown/, ''))
+                    let reply = AI.session_manager.get_last_reply()
 
                     output_box.innerHTML = marked.parse(reply, { renderer })
                 }
