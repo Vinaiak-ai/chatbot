@@ -117,10 +117,14 @@ class AI {
                     AI.session_manager.ask(parts)
                     part_no = 3
                 } else {
-                    AI.session_manager.add_reply(parts.repace(/```|```markdown/, ''))
+                    try{
+                    AI.session_manager.add_reply(parts.replace(/```|```markdown/, ''))
                     let reply = AI.session_manager.get_last_reply()
 
                     output_box.innerHTML = marked.parse(reply, { renderer })
+                    }catch(err){
+                        console.error("Filed to append parts:", parts, "\ndue to error", err)
+                    }
                 }
             }
         }
